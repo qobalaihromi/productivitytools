@@ -22,6 +22,7 @@
     "@tamagui/themes": "^2.0.0-rc.0",
     "burnt": "^0.12.2",
     "date-fns": "^4.1.0",
+    "dexie": "^4.3.0",
     "expo-constants": "~17.1.6",
     "expo-linking": "~7.1.4",
     "react-native-safe-area-context": "5.4.0",
