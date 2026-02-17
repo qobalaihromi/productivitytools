@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { NextTamaguiProvider } from 'app/provider/NextTamaguiProvider'
 
 export const metadata: Metadata = {
-  title: 'Tamagui • App Router',
-  description: 'Tamagui, Solito, Expo & Next.js',
+  title: 'Tasktik — All-in-One Productivity',
+  description: 'Time tracking, Pomodoro, Kanban, task management & smart scheduling in one app.',
   icons: '/favicon.ico',
 }
 
