@@ -11,6 +11,7 @@ export type Task = {
   status: 'todo' | 'in_progress' | 'done'
   estimated_minutes: number | null
   actual_minutes: number | null
+  start_date: string | null
   due_date: string | null
   position: number
   created_at: string
@@ -26,6 +27,7 @@ export type CreateTaskInput = {
   priority?: Task['priority']
   status?: Task['status']
   estimated_minutes?: number
+  start_date?: string
   due_date?: string
   position?: number
 }
@@ -34,10 +36,13 @@ export type UpdateTaskInput = Partial<Omit<CreateTaskInput, 'project_id'>>
 
 export async function getTasks(projectId: string) {
   const supabase = createClient()
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .eq('project_id', projectId)
+  let query = supabase.from('tasks').select('*, project:projects(name, color)') // Fetch project details too
+
+  if (projectId && projectId !== 'ALL') {
+    query = query.eq('project_id', projectId)
+  }
+
+  const { data, error } = await query
     .order('position', { ascending: true })
     .order('created_at', { ascending: false })
 
