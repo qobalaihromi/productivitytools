@@ -11,6 +11,8 @@ import { NextThemeProvider, useRootTheme } from '@tamagui/next-theme'
 import { config } from '@my/ui'
 import { Provider } from 'app/provider'
 import { AuthProvider } from 'app/provider/auth'
+import { TimerProvider } from 'app/lib/timer/TimerContext'
+import { TimerWidget } from 'app/features/timer/timer-widget'
 import { StyleSheet } from 'react-native'
 
 export const NextTamaguiProvider = ({ children }: { children: ReactNode }) => {
@@ -68,7 +70,10 @@ export const NextTamaguiProvider = ({ children }: { children: ReactNode }) => {
         defaultTheme={theme || 'light'}
       >
         <AuthProvider>
-          {children}
+          <TimerProvider>
+            {children}
+            <TimerWidget />
+          </TimerProvider>
         </AuthProvider>
       </Provider>
     </NextThemeProvider>
