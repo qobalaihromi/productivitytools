@@ -2,16 +2,12 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { YStack, XStack, Text, Button, Separator, Avatar, useMedia } from 'tamagui'
-import { Home, List, Calendar, Clock, LogOut, User } from '@tamagui/lucide-icons'
-import { useAuth } from 'app/provider/auth'
+import { Home, List, Calendar, Clock, Settings } from '@tamagui/lucide-icons'
 
 export function WebSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, signOut } = useAuth()
   const media = useMedia()
-
-  if (!user) return null
 
   const links = [
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
@@ -78,13 +74,12 @@ export function WebSidebar() {
       <Separator marginVertical="$4" />
 
       <Button
-        icon={LogOut}
+        icon={Settings}
         chromeless
-        onPress={() => signOut()}
+        onPress={() => router.push('/settings')}
         justifyContent="flex-start"
-
       >
-        Sign Out
+        Settings
       </Button>
     </YStack>
   )

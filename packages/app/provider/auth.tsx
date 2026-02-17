@@ -1,12 +1,23 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { createClient } from 'app/lib/supabase/client'
-import type { User, Session } from '@supabase/supabase-js'
+
+type User = {
+  id: string
+  email?: string
+  app_metadata: {
+    provider?: string
+    [key: string]: any
+  }
+  user_metadata: {
+    [key: string]: any
+  }
+  aud: string
+  created_at: string
+}
 
 type AuthContextType = {
   user: User | null
-  session: Session | null
   loading: boolean
   signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
@@ -14,49 +25,37 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Mock user for offline-first mode
+const ANONYMOUS_USER: User = {
+  id: 'local-user',
+  aud: 'authenticated',
+  app_metadata: { provider: 'local' },
+  user_metadata: {},
+  created_at: new Date().toISOString(),
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [user, setUser] = useState<User | null>(ANONYMOUS_USER)
+  const [loading, setLoading] = useState(false)
 
+  // In offline mode, we're always "logged in" as the local user
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+    setUser(ANONYMOUS_USER)
+    setLoading(false)
   }, [])
 
   const signInWithMagicLink = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    return { error: error as Error | null }
+    console.log('Online login disabled in offline-first mode')
+    return { error: null }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    console.log('Sign out disabled in offline-first mode')
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, session, loading, signInWithMagicLink, signOut }}
+      value={{ user, loading, signInWithMagicLink, signOut }}
     >
       {children}
     </AuthContext.Provider>

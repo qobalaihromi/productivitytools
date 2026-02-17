@@ -13,9 +13,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { ArrowLeft, ArrowRight, CheckCircle, Circle } from '@tamagui/lucide-icons'
 import { format, addDays, subDays, isToday } from 'date-fns'
-import { getDailyPlan, addToPlan, removeFromPlan, updatePlanNotes, PlannedTask, togglePlannedTask } from 'app/lib/api/planner'
+import { getDailyPlan, addToPlan, updatePlanNotes, PlannedTask, togglePlannedTask } from 'app/lib/api/planner'
 import { getTasks, Task } from 'app/lib/api/tasks'
-import { useAuth } from 'app/provider/auth'
 
 export function PlannerScreen() {
   const [date, setDate] = useState(new Date())
@@ -26,14 +25,11 @@ export function PlannerScreen() {
   const [loading, setLoading] = useState(true)
   const [activeId, setActiveId] = useState<string | null>(null)
 
-  const { user } = useAuth()
-
   useEffect(() => {
     fetchData()
-  }, [date, user])
+  }, [date])
 
   const fetchData = async () => {
-    if (!user) return
     setLoading(true)
     try {
       const dateStr = format(date, 'yyyy-MM-dd')

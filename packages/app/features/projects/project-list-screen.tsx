@@ -13,14 +13,8 @@ import {
   Paragraph,
   ScrollView,
 } from 'tamagui'
-import { Plus, FolderOpen, ChevronRight, LogOut } from '@tamagui/lucide-icons'
-import { getProjects, deleteProject, type Project } from 'app/lib/api/projects'
-import { useAuth } from 'app/provider/auth'
-
-const PROJECT_COLORS = [
-  '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981',
-  '#EF4444', '#6366F1', '#14B8A6', '#F97316', '#06B6D4',
-]
+import { Plus, FolderOpen, ChevronRight } from '@tamagui/lucide-icons'
+import { getProjects, type Project } from 'app/lib/api/projects'
 
 export function ProjectListScreen({
   onNavigateToCreate,
@@ -32,7 +26,6 @@ export function ProjectListScreen({
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { user, signOut } = useAuth()
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -76,15 +69,6 @@ export function ProjectListScreen({
           <H2 size="$7" fontWeight="700" color="$color12">
             Projects
           </H2>
-        </XStack>
-        <XStack gap="$2" alignItems="center">
-          <Text color="$color9" fontSize="$2">{user?.email}</Text>
-          <Button
-            size="$3"
-            chromeless
-            icon={LogOut}
-            onPress={signOut}
-          />
         </XStack>
       </XStack>
 

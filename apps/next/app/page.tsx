@@ -7,8 +7,8 @@ export default function HomePage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Redirect to projects page (main dashboard)
-    router.replace('/projects')
+    // Redirect to dashboard (no auth check needed)
+    router.replace('/dashboard')
   }, [router])
 
   return null

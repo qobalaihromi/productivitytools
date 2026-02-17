@@ -4,14 +4,10 @@ import { useState } from 'react'
 import { Card, XStack, Text, Button, YStack } from 'tamagui'
 import { Play, Pause, Square, Timer as TimerIcon } from '@tamagui/lucide-icons'
 import { useTimer } from 'app/lib/timer/TimerContext'
-import { useAuth } from 'app/provider/auth'
 
 export function TimerWidget() {
-  const { user } = useAuth()
-  const { mode, status, timeLeft, elapsedTime, start, pause, stop, setMode, projectId } = useTimer()
+  const { mode, status, timeLeft, elapsedTime, start, pause, stop, setMode } = useTimer()
   const [expanded, setExpanded] = useState(false)
-
-  if (!user) return null
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)

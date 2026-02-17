@@ -4,19 +4,15 @@ import { useEffect, useState } from 'react'
 import { YStack, XStack, H2, H4, Text, Card, ScrollView, Spinner, Separator } from 'tamagui'
 import { CheckCircle, Clock, Calendar, Activity } from '@tamagui/lucide-icons'
 import { getDashboardStats, DashboardStats } from 'app/lib/api/dashboard'
-import { useAuth } from 'app/provider/auth'
 import { format } from 'date-fns'
 
 export function DashboardScreen() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
-  const { user } = useAuth()
 
   useEffect(() => {
-    if (user) {
-      loadStats()
-    }
-  }, [user])
+    loadStats()
+  }, [])
 
   const loadStats = async () => {
     try {
@@ -42,7 +38,7 @@ export function DashboardScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: '$4', gap: '$4' }}>
       <YStack gap="$2">
-          <H2>Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}</H2>
+          <H2>Welcome back</H2>
           <Text color="$color10">Here's your productivity overview.</Text>
       </YStack>
 
