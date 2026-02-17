@@ -8,7 +8,7 @@ import { useAuth } from 'app/provider/auth'
 
 export function TimerWidget() {
   const { user } = useAuth()
-  const { mode, status, timeLeft, elapsedTime, start, pause, stop, setMode } = useTimer()
+  const { mode, status, timeLeft, elapsedTime, start, pause, stop, setMode, projectId } = useTimer()
   const [expanded, setExpanded] = useState(false)
 
   if (!user) return null

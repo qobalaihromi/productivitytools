@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { createPomodoroSession } from 'app/lib/api/timer'
+import { useAuth } from 'app/provider/auth'
 
 export type TimerMode = 'pomodoro' | 'timer'
 export type TimerStatus = 'idle' | 'running' | 'paused'
@@ -9,7 +11,9 @@ type TimerContextType = {
   timeLeft: number // in seconds (for pomodoro)
   elapsedTime: number // in seconds (for timer)
   totalDuration: number // in seconds (for pomodoro)
+  projectId?: string
   setMode: (mode: TimerMode) => void
+  setProjectId: (id: string | undefined) => void
   start: () => void
   pause: () => void
   stop: () => void
@@ -19,20 +23,34 @@ type TimerContextType = {
 const TimerContext = createContext<TimerContextType | undefined>(undefined)
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
   const [mode, setMode] = useState<TimerMode>('pomodoro')
   const [status, setStatus] = useState<TimerStatus>('idle')
-  const [timeLeft, setTimeLeft] = useState(25 * 60) // 25 mins default
+  const [timeLeft, setTimeLeft] = useState(25 * 60)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(25 * 60)
+  const [projectId, setProjectId] = useState<string | undefined>(undefined)
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleTimerComplete = useCallback(async () => {
+    setStatus('idle')
+    if (mode === 'pomodoro' && user) {
+      // Save session
+      await createPomodoroSession({
+        duration: totalDuration,
+        project_id: projectId,
+        notes: 'Pomodoro session',
+      })
+      // Reset timer
+      setTimeLeft(totalDuration)
+    }
+  }, [mode, user, totalDuration, projectId])
 
   const tick = useCallback(() => {
     if (mode === 'pomodoro') {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          // Timer finished
-          setStatus('idle')
           return 0
         }
         return prev - 1
@@ -41,6 +59,13 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       setElapsedTime((prev) => prev + 1)
     }
   }, [mode])
+
+  // Watch for completion
+  useEffect(() => {
+    if (mode === 'pomodoro' && status === 'running' && timeLeft === 0) {
+      handleTimerComplete()
+    }
+  }, [mode, status, timeLeft, handleTimerComplete])
 
   useEffect(() => {
     if (status === 'running') {
@@ -94,7 +119,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         timeLeft,
         elapsedTime,
         totalDuration,
+        projectId,
         setMode: handleSetMode,
+        setProjectId,
         start,
         pause,
         stop,
