@@ -13,9 +13,11 @@ import {
   Paragraph,
   Separator,
 } from 'tamagui'
-import { ArrowLeft, Edit3, Trash2, Calendar, Clock } from '@tamagui/lucide-icons'
+import { ArrowLeft, Trash2, Calendar, Clock, LayoutGrid, List as LayoutList } from '@tamagui/lucide-icons'
 import { getProject, deleteProject, type Project } from 'app/lib/api/projects'
 import { TaskList } from 'app/features/tasks/task-list'
+import { useProjectTasks } from 'app/features/tasks/use-project-tasks'
+import { KanbanBoard } from 'app/features/kanban/kanban-board'
 
 export function ProjectDetailScreen({
   projectId,
@@ -25,20 +27,23 @@ export function ProjectDetailScreen({
   onBack: () => void
 }) {
   const [project, setProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loadingProject, setLoadingProject] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  
+  const [view, setView] = useState<'list' | 'board'>('list')
+  const { tasks, loading: loadingTasks, addTask, updateTask, toggleTask, deleteTask: removeTask } = useProjectTasks(projectId)
 
   const fetchProject = useCallback(async () => {
     try {
-      setLoading(true)
+      setLoadingProject(true)
       const data = await getProject(projectId)
       setProject(data)
       setError(null)
     } catch (err: any) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setLoadingProject(false)
     }
   }, [projectId])
 
@@ -61,7 +66,13 @@ export function ProjectDetailScreen({
     }
   }
 
-  if (loading) {
+  const handleTaskMove = (taskId: string, newStatus: string, newIndex: number) => {
+      if (['todo', 'in_progress', 'done'].includes(newStatus)) {
+        updateTask(taskId, { status: newStatus as any, position: newIndex })
+      }
+  }
+
+  if (loadingProject) {
     return (
       <YStack flex={1} alignItems="center" justifyContent="center" minHeight="100vh">
         <Spinner size="large" color="$blue9" />
@@ -121,7 +132,7 @@ export function ProjectDetailScreen({
         </XStack>
       </XStack>
 
-      <YStack padding="$5" gap="$5" maxWidth={800} width="100%" alignSelf="center">
+      <YStack padding="$5" gap="$5" maxWidth={1200} width="100%" alignSelf="center">
         {/* Project Info */}
         <Card padding="$4" borderRadius="$4" borderWidth={1} borderColor="$color4">
           <YStack gap="$3">
@@ -180,17 +191,47 @@ export function ProjectDetailScreen({
           </YStack>
         </Card>
 
-import { TaskList } from 'app/features/tasks/task-list'
-
-// ... (in component body)
-
-        {/* Tasks */}
-        <YStack gap="$3">
-          <XStack justifyContent="space-between" alignItems="center">
+        {/* Views Toggle */}
+        <XStack gap="$3" alignItems="center" justifyContent="space-between">
             <H3 size="$5" fontWeight="600" color="$color12">Tasks</H3>
-          </XStack>
-          <TaskList projectId={projectId} />
-        </YStack>
+            <XStack backgroundColor="$color3" borderRadius="$4" padding="$1">
+                <Button 
+                    size="$2" 
+                    chromeless={view !== 'list'} 
+                    onPress={() => setView('list')}
+                    backgroundColor={view === 'list' ? '$background' : 'transparent'}
+                    icon={LayoutList}
+                >
+                    List
+                </Button>
+                <Button 
+                    size="$2" 
+                    chromeless={view !== 'board'} 
+                    onPress={() => setView('board')}
+                    backgroundColor={view === 'board' ? '$background' : 'transparent'}
+                    icon={LayoutGrid}
+                >
+                    Board
+                </Button>
+            </XStack>
+        </XStack>
+
+        {/* Content */}
+        {view === 'list' ? (
+             <TaskList 
+                projectId={projectId} 
+                tasks={tasks} 
+                loading={loadingTasks} 
+                addTask={addTask}
+                onToggle={toggleTask}
+                onDelete={removeTask}
+             />
+        ) : (
+             <KanbanBoard 
+                tasks={tasks} 
+                onTaskMove={handleTaskMove}
+             />
+        )}
       </YStack>
     </YStack>
   )
