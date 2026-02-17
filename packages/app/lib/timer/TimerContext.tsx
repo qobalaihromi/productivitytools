@@ -37,7 +37,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       // Save session - always save in offline mode
       await createPomodoroSession({
         duration: totalDuration,
-        project_id: projectId,
+        project_id: projectId ?? null,
         notes: 'Pomodoro session',
       })
       // Reset timer

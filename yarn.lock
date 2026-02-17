@@ -2715,6 +2715,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@maxim_mazurok/gapi.client.discovery-v1@npm:latest":
+  version: 0.4.20200806
+  resolution: "@maxim_mazurok/gapi.client.discovery-v1@npm:0.4.20200806"
+  dependencies:
+    "@types/gapi.client": "npm:*"
+    "@types/gapi.client.discovery-v1": "npm:*"
+  checksum: 10/2669f22f368af5b6691f64eb28dea1feb963392364d1f1a4c5169c9b40c27fcceefc52f919e36a07c19c5577d358c06d3d38841e8d0bb90042b29a0172a91e73
+  languageName: node
+  linkType: hard
+
+"@maxim_mazurok/gapi.client.drive-v3@npm:latest":
+  version: 0.1.20260210
+  resolution: "@maxim_mazurok/gapi.client.drive-v3@npm:0.1.20260210"
+  dependencies:
+    "@types/gapi.client": "npm:*"
+    "@types/gapi.client.discovery-v1": "npm:*"
+  checksum: 10/aafd6817e04f45dd034437dc31a29e18ccfda4e387d527f604493d8807265e0352eacb6116f46873663b87ff6714fe3e79f39b17d1596612170580514089cbd8
+  languageName: node
+  linkType: hard
+
 "@my/config@npm:0.0.1, @my/config@workspace:packages/config":
   version: 0.0.0-use.local
   resolution: "@my/config@workspace:packages/config"
@@ -6253,6 +6273,47 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/gapi.auth2@npm:^0.0.61":
+  version: 0.0.61
+  resolution: "@types/gapi.auth2@npm:0.0.61"
+  dependencies:
+    "@types/gapi": "npm:*"
+  checksum: 10/fda285829048965ea835ba386e5cbb1106f55f109595e0eb9e9c3cf8d50abb4cc824bcc8d02c34ae12e6fcb51090f439a619ebf308b334dfa4ed07df0217af2b
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client.discovery-v1@npm:*":
+  version: 0.0.4
+  resolution: "@types/gapi.client.discovery-v1@npm:0.0.4"
+  dependencies:
+    "@maxim_mazurok/gapi.client.discovery-v1": "npm:latest"
+  checksum: 10/51d20e6cfbda250eb95f55ba563662ba9b71b97aee375cdc46179ff7cbc553082f45d6e4ce322767d121298a6e90bd7848e6c1c56c433217600627fbcc78f600
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client.drive@npm:^3.0.15":
+  version: 3.0.15
+  resolution: "@types/gapi.client.drive@npm:3.0.15"
+  dependencies:
+    "@maxim_mazurok/gapi.client.drive-v3": "npm:latest"
+  checksum: 10/0cdff3a24ff250eecfaa0a7c66e17e40731017adc6a30bb812f9a3d6775d6688868efa3bcef843d5f6ab7421b60ae968f981de0c05251941cbf464e3d8583d1e
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client@npm:*":
+  version: 1.0.8
+  resolution: "@types/gapi.client@npm:1.0.8"
+  checksum: 10/3607c9592df9e66a6decdcce86366d3e6440b8bd7da39bee5fa05d01f165827f9e772eb1913b12797334d5f3e55c6cfe2d30c5ddd0d9037b02e823294a2e188b
+  languageName: node
+  linkType: hard
+
+"@types/gapi@npm:*, @types/gapi@npm:^0.0.47":
+  version: 0.0.47
+  resolution: "@types/gapi@npm:0.0.47"
+  checksum: 10/b8104688ef132190cb661b461b912a3f6f07ce589eb90ab4bff4acdfaa9bbb8a6321be1119e865db89bf46dfc00cab2141764839535518cf63a8e2caa19f475e
+  languageName: node
+  linkType: hard
+
 "@types/graceful-fs@npm:^4.1.3":
   version: 4.1.9
   resolution: "@types/graceful-fs@npm:4.1.9"
@@ -6980,6 +7041,9 @@ __metadata:
     "@tamagui/lucide-icons": "npm:^2.0.0-rc.0"
     "@tamagui/shorthands": "npm:^2.0.0-rc.0"
     "@tamagui/themes": "npm:^2.0.0-rc.0"
+    "@types/gapi": "npm:^0.0.47"
+    "@types/gapi.auth2": "npm:^0.0.61"
+    "@types/gapi.client.drive": "npm:^3.0.15"
     "@types/react": "npm:~19.0.10"
     "@types/react-native": "npm:^0.73.0"
     burnt: "npm:^0.12.2"

@@ -62,12 +62,14 @@ export async function importData(data: BackupData): Promise<{ success: boolean; 
 
     try {
         await db.transaction('rw', 
-            db.projects, 
-            db.tasks, 
-            db.pomodoro_sessions, 
-            db.daily_plans, 
-            db.planned_tasks, 
-            db.work_settings, 
+            [
+                db.projects, 
+                db.tasks, 
+                db.pomodoro_sessions, 
+                db.daily_plans, 
+                db.planned_tasks, 
+                db.work_settings
+            ], 
             async () => {
                 // Clear existing data
                 await Promise.all([

@@ -11,13 +11,12 @@ import {
   Card,
   Theme,
   Separator,
-  Switch,
-  Label,
   Text,
   useToastController,
   Spinner,
 } from 'tamagui'
-import { Download, Upload, Trash2, Smartphone, HardDrive, CheckCircle, AlertTriangle } from '@tamagui/lucide-icons'
+import { Download, Upload, Trash2, HardDrive } from '@tamagui/lucide-icons'
+import { DriveSettings } from 'app/features/settings/drive-settings'
 import { exportData, importData, type BackupData } from 'app/lib/backup'
 import { db } from 'app/lib/db'
 
@@ -134,10 +133,17 @@ export function SettingsScreen() {
 
         <YStack gap="$4">
           <H4 color="$color11" textTransform="uppercase" size="$3" fontWeight="600" letterSpacing={1}>
+            Cloud Backup
+          </H4>
+          <DriveSettings />
+        </YStack>
+
+        <YStack gap="$4">
+          <H4 color="$color11" textTransform="uppercase" size="$3" fontWeight="600" letterSpacing={1}>
             Data Management
           </H4>
           
-          <Card bordered padding="$4" gap="$4">
+          <Card borderWidth={1} borderColor="$borderColor" padding="$4" gap="$4">
             <XStack justifyContent="space-between" alignItems="center">
               <YStack gap="$1" flex={1}>
                 <XStack gap="$2" alignItems="center">
@@ -195,7 +201,7 @@ export function SettingsScreen() {
               </YStack>
               <Button
                 size="$3"
-                theme="red_active"
+                theme="red"
                 icon={loading ? <Spinner /> : Trash2}
                 onPress={handleClearData}
                 disabled={loading}
@@ -210,7 +216,7 @@ export function SettingsScreen() {
           <H4 color="$color11" textTransform="uppercase" size="$3" fontWeight="600" letterSpacing={1}>
             Storage Info
           </H4>
-          <Card bordered padding="$4">
+          <Card borderWidth={1} borderColor="$borderColor" padding="$4">
              <XStack gap="$3" alignItems="center">
                 <HardDrive size={24} color="$color10" />
                 <YStack>
