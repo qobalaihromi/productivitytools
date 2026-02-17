@@ -512,7 +512,10 @@ Monorepo (Turborepo)
 | **Web Hosting** | Vercel | — |
 | **Mobile Distribution** | Expo EAS Build | ✅ |
 
-### 4.5 Offline & Sync Architecture
+### 4.5 Offline & Sync Architecture (Hybrid Offline-First)
+
+> [!IMPORTANT]
+> **Keputusan Arsitektur (Updated):** Data disimpan **lokal by default** (IndexedDB). Tidak perlu login. Backup opsional ke Google Drive atau Supabase.
 
 ```
 ┌──────────────────────┐                    ┌──────────────────────┐
@@ -528,29 +531,21 @@ Monorepo (Turborepo)
 │  └──────┬─────────┘  │                    │  └──────┬─────────┘  │
 │         │            │                    │         │            │
 │  ┌──────▼─────────┐  │                    │  ┌──────▼─────────┐  │
-│  │ Sync Engine    │  │                    │  │  Sync Engine   │  │
-│  │ (shared pkg)   │  │                    │  │  (shared pkg)  │  │
+│  │ Backup Engine  │  │                    │  │ Backup Engine  │  │
+│  │ (opsional)     │  │                    │  │ (opsional)     │  │
 │  └──────┬─────────┘  │                    │  └──────┬─────────┘  │
 └─────────┼────────────┘                    └─────────┼────────────┘
           │                                           │
           └──────────┐              ┌─────────────────┘
                      ▼              ▼
-              ┌──────────────────────────┐
-              │    SUPABASE CLOUD        │
-              │                          │
-              │  ┌────────────────────┐  │
-              │  │   PostgreSQL       │  │
-              │  │  (Source of Truth) │  │
-              │  └────────────────────┘  │
-              │  ┌────────────────────┐  │
-              │  │   Supabase Auth    │  │
-              │  │   (Magic Link)     │  │
-              │  └────────────────────┘  │
-              │  ┌────────────────────┐  │
-              │  │   Realtime         │  │
-              │  │   (Live Sync)      │  │
-              │  └────────────────────┘  │
-              └──────────────────────────┘
+  ┌────────────────────────────────────────────────────┐
+  │              BACKUP OPTIONS (Opsional)              │
+  │                                                    │
+  │  Level 0: Lokal saja (default)                     │
+  │  Level 1: Manual Export/Import JSON                │
+  │  Level 2: Google Drive Auto-Backup (5 min)         │
+  │  Level 3: Supabase Cloud Sync (future/premium)     │
+  └────────────────────────────────────────────────────┘
 ```
 
 ### 4.6 Database Schema (High-Level)
@@ -655,36 +650,33 @@ erDiagram
 
 ---
 
-## 5. MVP Scope (Phase 1)
+## 5. MVP Scope
 
-### ✅ Include in MVP
-- [ ] Monorepo setup (Turborepo + Solito + Next.js + Expo)
-- [ ] User authentication (Magic Link via Supabase)
-- [ ] CRUD Projects
-- [ ] CRUD Tasks dengan hierarchy (Project → Section → Task → Subtask)
-- [ ] Checklist/completion tracking
-- [ ] Kanban Board (drag & drop) dengan preset + custom columns
-- [ ] Time Tracking (start/stop timer)
-- [ ] Pomodoro Timer (configurable duration)
-- [ ] Work hours setting
-- [ ] Smart daily task recommendation
-- [ ] Project Timeline View (calendar block per project, zoom week/month/quarter)
-- [ ] Dashboard dengan ringkasan hari ini
-- [ ] Online sync (Supabase Realtime)
-- [ ] Mobile app (Expo) — read-focused (cek task, lihat progress)
-- [ ] Offline support — arsitektur siap, implementasi di Phase 2
+### ✅ Sudah Selesai (Phase 1-2)
+- [x] Monorepo setup (Turborepo + Solito + Next.js + Expo)
+- [x] CRUD Projects & Tasks
+- [x] Kanban Board (drag & drop)
+- [x] Unified Timer (Pomodoro + Free)
+- [x] Smart Daily Planner
+- [x] Project Timeline View
+- [x] Dashboard & Reports
+- [x] Mobile App (Expo tab navigation)
+- [x] Web Sidebar navigation
 
-### ❌ Defer to Phase 2+
+### 🔄 In Progress (Phase 3-5: Hybrid Offline-First)
+- [ ] Offline-First conversion (IndexedDB via Dexie.js)
+- [ ] Remove login barrier (langsung masuk tanpa auth)
+- [ ] Manual Export/Import JSON
+- [ ] Google Drive Auto-Backup (opsional)
+
+### ❌ Defer to Future
+- [ ] Supabase Cloud Sync (power users / kolaborasi)
 - [ ] Advanced reporting & analytics
 - [ ] Google Calendar integration
-- [ ] Task dependencies
-- [ ] Recurring tasks
+- [ ] Task dependencies & recurring tasks
 - [ ] Team collaboration / shared projects
-- [ ] Dark mode
-- [ ] Export data (PDF/CSV)
 - [ ] Push notifications
 - [ ] AI-powered time estimation
-- [ ] Social login (Google, GitHub)
 
 ---
 
@@ -692,15 +684,18 @@ erDiagram
 
 ```mermaid
 graph TD
-    A["🔑 Login (Magic Link)"] --> B["📊 Dashboard"]
+    A["🚀 Buka App"] --> B["📊 Dashboard"]
     B --> C["📁 Projects"]
     B --> D["📅 Today's Plan"]
     B --> E["📈 Reports"]
     B --> V["📅 Timeline View"]
+    B --> SET["⚙️ Settings"]
     
-    V --> W["View All Projects Timeline"]
-    W --> X["Zoom: Week / Month / Quarter"]
-    W --> G
+    SET --> EXP["📤 Export JSON"]
+    SET --> IMP["📥 Import JSON"]
+    SET --> GD["☁️ Connect Google Drive"]
+    GD --> AUTO["🔄 Auto-Backup 5 min"]
+    GD --> REST["📥 Restore from Drive"]
     
     C --> F["Create Project"]
     C --> G["Select Project"]
@@ -719,10 +714,6 @@ graph TD
     Q --> R["Start Working"]
     R --> M
     R --> N
-    
-    E --> S["Daily Report"]
-    E --> T["Weekly Report"]
-    E --> U["Project Report"]
 ```
 
 ---
@@ -863,7 +854,7 @@ graph TD
 |---|---|---|
 | 1 | MVP Split? | **Tidak** — development langsung full scope, AI atur urutan pengerjaan |
 | 2 | Monorepo | **Dari awal** — setup Turborepo + Solito dari hari pertama |
-| 3 | Offline | **Online-only** untuk sekarang, arsitektur siap offline (Phase 2) |
+| 3 | Offline | ~~Online-only~~ → **Hybrid Offline-First** (updated Round 6) |
 | 4 | Timer/Pomodoro | **Unified** — 2 mode (🍅 Pomodoro / ⏱️ Free Timer) dari 1 fitur |
 | 5 | Nama | **Tasktik** (Task + Taktik) ✅ |
 
@@ -906,23 +897,61 @@ graph TD
 
 ---
 
+### Round 6 (17 Feb 2026) — Arsitektur Hybrid Offline-First
+
+> [!IMPORTANT]
+> Keputusan besar: migrasi dari **Supabase-only** ke **Hybrid Offline-First**.
+
+| # | Topik | Keputusan |
+|---|---|---|
+| 1 | Login/Register | **Dihapus** — user langsung masuk tanpa signup |
+| 2 | Storage | **IndexedDB** (Dexie.js) sebagai primary storage |
+| 3 | Backup Level 1 | **Manual Export/Import** JSON |
+| 4 | Backup Level 2 | **Google Drive** auto-backup (opsional, setiap 5 menit) |
+| 5 | Backup Level 3 | **Supabase** (future, untuk power users & kolaborasi) |
+| 6 | Alasan utama | Zero friction showcase, hemat biaya server, privacy-first |
+| 7 | Biaya | **$0/bulan** — Google Drive gratis 15GB, tidak perlu server |
+
+---
+
 ## 12. Development Order
 
 Urutan pengerjaan yang sudah direncanakan:
 
 ```
- 1. Setup Monorepo (Turborepo + Solito + Next.js + Expo)
- 2. Database Schema (Supabase migrations)
- 3. Auth (Magic Link)
- 4. CRUD Projects
- 5. CRUD Tasks + Hierarchy + Checklist
- 6. Unified Timer (Pomodoro + Free Timer)
- 7. Kanban Board (drag & drop + custom columns)
- 8. Project Timeline View (calendar block per project)
- 9. Smart Daily Planner (scoring algorithm)
-10. Dashboard & Reports
-11. Mobile App (Expo — read-focused)
-12. UI/UX Polish & Bug Fix
+ Phase 1: Foundation ✅
+  1. Setup Monorepo (Turborepo + Solito + Next.js + Expo)
+  2. Database Schema (Supabase migrations)
+  3. Auth (Magic Link)
+  4. CRUD Projects
+
+ Phase 2: Core Features ✅
+  5. CRUD Tasks + Hierarchy + Checklist
+  6. Unified Timer (Pomodoro + Free Timer)
+  7. Kanban Board (drag & drop + custom columns)
+  8. Project Timeline View
+  9. Smart Daily Planner
+ 10. Dashboard & Reports
+ 11. Mobile App (Expo tab navigation)
+ 12. UI/UX Polish & Web Sidebar
+
+ Phase 3: Offline-First Conversion 🔄
+ 13. Install Dexie.js + create local DB schema
+ 14. Migrate API layer → IndexedDB
+ 15. Remove auth barrier (hapus login page)
+
+ Phase 4: Manual Export/Import
+ 16. Export all data to JSON
+ 17. Import JSON with validation
+ 18. Settings page
+
+ Phase 5: Google Drive Auto-Backup
+ 19. Google OAuth setup
+ 20. Drive sync module
+ 21. Background auto-backup (5 min)
+
+ Phase 6: Optional Supabase (Future)
+ 22. Cloud sync for power users
 ```
 
 ---
@@ -937,10 +966,13 @@ Urutan pengerjaan yang sudah direncanakan:
 > - 📅 **Timeline View** — visualisasi project dalam kalender bulanan
 > - 🧠 **Smart Planner** — rekomendasi task harian berdasarkan priority
 >
-> Dibangun dengan **Solito monorepo** (Next.js web + Expo mobile), **Supabase** backend, dan **Magic Link** auth.
-> Biaya infrastruktur: **$0/bulan** (free tier).
+> **Arsitektur: Hybrid Offline-First**
+> - Data disimpan **lokal** (IndexedDB) — langsung pakai tanpa login
+> - Backup opsional ke **Google Drive** (gratis) atau **Supabase** (future)
+> - Dibangun dengan **Solito monorepo** (Next.js web + Expo mobile)
+> - Biaya infrastruktur: **$0/bulan**
 
 ---
 
-*Dokumen ini sudah final dan siap dijadikan acuan untuk development.*
+*Dokumen ini sudah final dan siap dijadikan acuan untuk development. Last updated: 17 Feb 2026.*
 
