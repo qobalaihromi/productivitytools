@@ -13,6 +13,7 @@ import {
   Separator,
 } from 'tamagui'
 import { ArrowLeft, Save } from '@tamagui/lucide-icons'
+import { useToastController } from '@my/ui'
 import { createProject, type CreateProjectInput } from 'app/lib/api/projects'
 
 const PROJECT_COLORS = [
@@ -34,6 +35,7 @@ export function ProjectCreateScreen({
   const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const toast = useToastController()
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -53,9 +55,15 @@ export function ProjectCreateScreen({
         end_date: endDate || undefined,
       }
       const project = await createProject(input)
+      toast.show('Project created!', {
+        message: `Current project: ${project.name}`,
+      })
       onCreated(project.id)
     } catch (err: any) {
       setError(err.message)
+      toast.show('Error creating project', {
+        message: err.message,
+      })
     } finally {
       setLoading(false)
     }

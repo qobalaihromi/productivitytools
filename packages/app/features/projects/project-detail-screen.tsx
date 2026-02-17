@@ -14,6 +14,7 @@ import {
   Separator,
 } from 'tamagui'
 import { ArrowLeft, Trash2, Calendar, Clock, LayoutGrid, List as LayoutList } from '@tamagui/lucide-icons'
+import { useToastController } from '@my/ui'
 import { getProject, deleteProject, type Project } from 'app/lib/api/projects'
 import { TaskList } from 'app/features/tasks/task-list'
 import { useProjectTasks } from 'app/features/tasks/use-project-tasks'
@@ -31,6 +32,7 @@ export function ProjectDetailScreen({
   const [loadingProject, setLoadingProject] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const toast = useToastController()
   
   const [view, setView] = useState<'list' | 'board' | 'timeline'>('list')
   const { tasks, loading: loadingTasks, addTask, updateTask, toggleTask, deleteTask: removeTask } = useProjectTasks(projectId)
@@ -60,6 +62,9 @@ export function ProjectDetailScreen({
     setDeleting(true)
     try {
       await deleteProject(project.id)
+      toast.show('Project deleted', {
+        message: `${project.name} has been removed.`,
+      })
       onBack()
     } catch (err: any) {
       setError(err.message)
