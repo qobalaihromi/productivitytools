@@ -1,9 +1,15 @@
 'use client'
 
-import { HomeScreen } from 'app/features/home/screen'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
-export default function Page() {
+export default function HomePage() {
   const router = useRouter()
-  return <HomeScreen onLinkPress={() => router.push('/user/nate')} />
+
+  useEffect(() => {
+    // Redirect to projects page (main dashboard)
+    router.replace('/projects')
+  }, [router])
+
+  return null
 }
