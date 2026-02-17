@@ -18,6 +18,7 @@ import { getProject, deleteProject, type Project } from 'app/lib/api/projects'
 import { TaskList } from 'app/features/tasks/task-list'
 import { useProjectTasks } from 'app/features/tasks/use-project-tasks'
 import { KanbanBoard } from 'app/features/kanban/kanban-board'
+import { TimelineView } from 'app/features/timeline/timeline-view'
 
 export function ProjectDetailScreen({
   projectId,
@@ -31,7 +32,7 @@ export function ProjectDetailScreen({
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   
-  const [view, setView] = useState<'list' | 'board'>('list')
+  const [view, setView] = useState<'list' | 'board' | 'timeline'>('list')
   const { tasks, loading: loadingTasks, addTask, updateTask, toggleTask, deleteTask: removeTask } = useProjectTasks(projectId)
 
   const fetchProject = useCallback(async () => {
@@ -213,6 +214,15 @@ export function ProjectDetailScreen({
                 >
                     Board
                 </Button>
+                <Button 
+                    size="$2" 
+                    chromeless={view !== 'timeline'} 
+                    onPress={() => setView('timeline')}
+                    backgroundColor={view === 'timeline' ? '$background' : 'transparent'}
+                    icon={Calendar}
+                >
+                    Timeline
+                </Button>
             </XStack>
         </XStack>
 
@@ -226,11 +236,13 @@ export function ProjectDetailScreen({
                 onToggle={toggleTask}
                 onDelete={removeTask}
              />
-        ) : (
+        ) : view === 'board' ? (
              <KanbanBoard 
                 tasks={tasks} 
                 onTaskMove={handleTaskMove}
              />
+        ) : (
+             <TimelineView tasks={tasks} />
         )}
       </YStack>
     </YStack>
