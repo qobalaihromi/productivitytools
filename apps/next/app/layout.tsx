@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { NextTamaguiProvider } from 'app/provider/NextTamaguiProvider'
+import { WebLayout } from 'app/features/navigation/web-layout'
 
 export const metadata: Metadata = {
   title: 'Tasktik — All-in-One Productivity',
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body>
-        <NextTamaguiProvider>{children}</NextTamaguiProvider>
+        <NextTamaguiProvider>
+          <WebLayout>{children}</WebLayout>
+        </NextTamaguiProvider>
       </body>
     </html>
   )
