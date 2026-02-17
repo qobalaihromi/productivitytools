@@ -40,35 +40,35 @@ export function LoginScreen() {
 
   return (
     <Theme name="light">
-      <YStack f={1} bg="$background" ai="center" jc="center" p="$4" minHeight="100vh">
+      <YStack flex={1} backgroundColor="$background" alignItems="center" justifyContent="center" padding="$4" minHeight="100vh">
         <YStack
           maxWidth={420}
           width="100%"
           gap="$5"
-          ai="center"
+          alignItems="center"
         >
           {/* Logo / Brand */}
-          <YStack ai="center" gap="$2">
+          <YStack alignItems="center" gap="$2">
             <XStack
-              bg="$blue6"
-              w={56}
-              h={56}
-              br="$6"
-              ai="center"
-              jc="center"
+              backgroundColor="$blue6"
+              width={56}
+              height={56}
+              borderRadius="$6"
+              alignItems="center"
+              justifyContent="center"
             >
               <Check size={28} color="white" strokeWidth={3} />
             </XStack>
             <H1 size="$9" fontWeight="800" color="$color12" letterSpacing={-1}>
               Tasktik
             </H1>
-            <Paragraph color="$color10" size="$4" ta="center">
+            <Paragraph color="$color10" size="$4" textAlign="center">
               All-in-one productivity app for focused work
             </Paragraph>
           </YStack>
 
           {/* Feature pills */}
-          <XStack flexWrap="wrap" gap="$2" jc="center">
+          <XStack flexWrap="wrap" gap="$2" justifyContent="center">
             {[
               { icon: Timer, label: 'Timer' },
               { icon: LayoutGrid, label: 'Kanban' },
@@ -77,15 +77,15 @@ export function LoginScreen() {
             ].map(({ icon: Icon, label }) => (
               <XStack
                 key={label}
-                bg="$color3"
-                px="$3"
-                py="$1.5"
-                br="$10"
-                ai="center"
+                backgroundColor="$color3"
+                paddingHorizontal="$3"
+                paddingVertical="$1.5"
+                borderRadius="$10"
+                alignItems="center"
                 gap="$1.5"
               >
                 <Icon size={14} color="$color11" />
-                <Text color="$color11" size="$2" fontWeight="500">
+                <Text color="$color11" fontSize="$2" fontWeight="500">
                   {label}
                 </Text>
               </XStack>
@@ -97,28 +97,29 @@ export function LoginScreen() {
           {/* Login Card */}
           <Card
             width="100%"
-            bordered
-            p="$5"
-            br="$6"
-            elevate
+            padding="$5"
+            borderRadius="$6"
+            elevation="$2"
             size="$4"
+            borderWidth={1}
+            borderColor="$color4"
           >
             {sent ? (
-              <YStack ai="center" gap="$4" py="$4">
+              <YStack alignItems="center" gap="$4" paddingVertical="$4">
                 <XStack
-                  bg="$green4"
-                  w={64}
-                  h={64}
-                  br="$10"
-                  ai="center"
-                  jc="center"
+                  backgroundColor="$green4"
+                  width={64}
+                  height={64}
+                  borderRadius="$10"
+                  alignItems="center"
+                  justifyContent="center"
                 >
                   <Mail size={28} color="$green10" />
                 </XStack>
-                <H3 size="$6" ta="center" fontWeight="700" color="$color12">
+                <H3 size="$6" textAlign="center" fontWeight="700" color="$color12">
                   Check your email
                 </H3>
-                <Paragraph color="$color10" size="$3" ta="center" maxWidth={280}>
+                <Paragraph color="$color10" size="$3" textAlign="center" maxWidth={280}>
                   We sent a magic link to{' '}
                   <Text fontWeight="600" color="$color12">
                     {email}
@@ -128,26 +129,25 @@ export function LoginScreen() {
                 <Button
                   size="$3"
                   chromeless
-                  color="$blue10"
                   onPress={() => { setSent(false); setEmail('') }}
                 >
-                  Use a different email
+                  <Button.Text color="$blue10">Use a different email</Button.Text>
                 </Button>
               </YStack>
             ) : (
               <YStack gap="$4">
                 <YStack gap="$1">
-                  <Text size="$6" fontWeight="700" color="$color12">
+                  <Text fontSize="$6" fontWeight="700" color="$color12">
                     Sign in
                   </Text>
-                  <Text size="$3" color="$color10">
+                  <Text fontSize="$3" color="$color10">
                     Enter your email to receive a magic link
                   </Text>
                 </YStack>
 
                 {error && (
-                  <XStack bg="$red3" px="$3" py="$2" br="$4">
-                    <Text color="$red10" size="$2">
+                  <XStack backgroundColor="$red3" paddingHorizontal="$3" paddingVertical="$2" borderRadius="$4">
+                    <Text color="$red10" fontSize="$2">
                       {error}
                     </Text>
                   </XStack>
@@ -169,22 +169,22 @@ export function LoginScreen() {
 
                 <Button
                   size="$4"
-                  bg="$blue9"
-                  color="white"
-                  fontWeight="600"
+                  backgroundColor="$blue9"
                   onPress={handleSubmit}
                   disabled={loading || !email.trim()}
                   opacity={loading || !email.trim() ? 0.6 : 1}
                   iconAfter={loading ? undefined : ArrowRight}
-                  pressStyle={{ bg: '$blue10' }}
+                  pressStyle={{ backgroundColor: '$blue10' }}
                 >
-                  {loading ? 'Sending...' : 'Send Magic Link'}
+                  <Button.Text color="white" fontWeight="600">
+                    {loading ? 'Sending...' : 'Send Magic Link'}
+                  </Button.Text>
                 </Button>
               </YStack>
             )}
           </Card>
 
-          <Paragraph color="$color8" size="$2" ta="center">
+          <Paragraph color="$color8" size="$2" textAlign="center">
             No password needed. We'll send you a secure link.
           </Paragraph>
         </YStack>
