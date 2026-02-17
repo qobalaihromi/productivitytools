@@ -15,6 +15,7 @@ import {
 } from 'tamagui'
 import { ArrowLeft, Edit3, Trash2, Calendar, Clock } from '@tamagui/lucide-icons'
 import { getProject, deleteProject, type Project } from 'app/lib/api/projects'
+import { TaskList } from 'app/features/tasks/task-list'
 
 export function ProjectDetailScreen({
   projectId,
@@ -179,21 +180,16 @@ export function ProjectDetailScreen({
           </YStack>
         </Card>
 
-        {/* Sections & Tasks placeholder */}
+import { TaskList } from 'app/features/tasks/task-list'
+
+// ... (in component body)
+
+        {/* Tasks */}
         <YStack gap="$3">
           <XStack justifyContent="space-between" alignItems="center">
-            <H3 size="$5" fontWeight="600" color="$color12">Sections & Tasks</H3>
+            <H3 size="$5" fontWeight="600" color="$color12">Tasks</H3>
           </XStack>
-          <Card padding="$6" borderRadius="$4" borderWidth={1} borderColor="$color4" borderStyle="dashed">
-            <YStack alignItems="center" gap="$2">
-              <Text color="$color8" fontSize="$3" textAlign="center">
-                Task management coming in the next phase
-              </Text>
-              <Text color="$color7" fontSize="$2">
-                You'll be able to add sections, tasks, and subtasks here
-              </Text>
-            </YStack>
-          </Card>
+          <TaskList projectId={projectId} />
         </YStack>
       </YStack>
     </YStack>
