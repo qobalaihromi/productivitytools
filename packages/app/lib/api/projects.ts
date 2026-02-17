@@ -1,17 +1,7 @@
-import { createClient } from 'app/lib/supabase/client'
+import { db, generateId } from 'app/lib/db'
+import type { LocalProject } from 'app/lib/db'
 
-export type Project = {
-  id: string
-  user_id: string
-  name: string
-  description: string | null
-  color: string
-  status: 'active' | 'completed' | 'archived'
-  start_date: string | null
-  end_date: string | null
-  created_at: string
-  updated_at: string
-}
+export type Project = LocalProject
 
 export type CreateProjectInput = {
   name: string
@@ -26,65 +16,47 @@ export type UpdateProjectInput = Partial<CreateProjectInput> & {
 }
 
 export async function getProjects() {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return data as Project[]
+  const projects = await db.projects
+    .orderBy('created_at')
+    .reverse()
+    .toArray()
+  return projects
 }
 
 export async function getProject(id: string) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', id)
-    .single()
-
-  if (error) throw error
-  return data as Project
+  const project = await db.projects.get(id)
+  if (!project) throw new Error(`Project not found: ${id}`)
+  return project
 }
 
 export async function createProject(input: CreateProjectInput) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  const now = new Date().toISOString()
+  const project: Project = {
+    id: generateId(),
+    name: input.name,
+    description: input.description ?? null,
+    color: input.color ?? '#3B82F6',
+    status: 'active',
+    start_date: input.start_date ?? null,
+    end_date: input.end_date ?? null,
+    created_at: now,
+    updated_at: now,
+  }
 
-  const { data, error } = await supabase
-    .from('projects')
-    .insert({
-      ...input,
-      user_id: user.id,
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Project
+  await db.projects.add(project)
+  return project
 }
 
 export async function updateProject(id: string, input: UpdateProjectInput) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('projects')
-    .update(input)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Project
+  const now = new Date().toISOString()
+  await db.projects.update(id, { ...input, updated_at: now })
+  const updated = await db.projects.get(id)
+  if (!updated) throw new Error(`Project not found: ${id}`)
+  return updated
 }
 
 export async function deleteProject(id: string) {
-  const supabase = createClient()
-  const { error } = await supabase
-    .from('projects')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
+  // Also delete associated tasks
+  await db.tasks.where('project_id').equals(id).delete()
+  await db.projects.delete(id)
 }

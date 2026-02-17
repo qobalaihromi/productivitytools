@@ -1,21 +1,9 @@
-import { createClient } from '../supabase/client'
-const supabase = createClient()
+import { db, generateId } from 'app/lib/db'
+import type { LocalDailyPlan, LocalPlannedTask } from 'app/lib/db'
 
-export type DailyPlan = {
-  id: string
-  user_id: string
-  date: string
-  notes: string | null
-  created_at: string
-  updated_at: string
-}
+export type DailyPlan = LocalDailyPlan
 
-export type PlannedTask = {
-  id: string
-  daily_plan_id: string
-  task_id: string
-  is_completed: boolean
-  position: number
+export type PlannedTask = LocalPlannedTask & {
   task?: {
     title: string
     status: string
@@ -29,97 +17,80 @@ export type PlannedTask = {
 
 export async function getDailyPlan(date: string) {
   // 1. Get or create plan for date
-  const { data: existingPlan, error: findError } = await supabase
-    .from('daily_plans')
-    .select('*')
-    .eq('date', date)
-    .single()
-
-  if (findError && findError.code !== 'PGRST116') {
-    throw findError
-  }
-
-  let plan = existingPlan
+  let plan = await db.daily_plans.where('date').equals(date).first()
 
   if (!plan) {
-    const { data: newPlan, error: createError } = await supabase
-      .from('daily_plans')
-      .insert({ date })
-      .select()
-      .single()
-
-    if (createError) throw createError
-    plan = newPlan
+    const now = new Date().toISOString()
+    plan = {
+      id: generateId(),
+      date,
+      notes: null,
+      created_at: now,
+      updated_at: now,
+    }
+    await db.daily_plans.add(plan)
   }
 
-  // 2. Get planned tasks
-  const { data: plannedTasks, error: tasksError } = await supabase
-    .from('planned_tasks')
-    .select(`
-      *,
-      task:tasks (
-        title,
-        status,
-        priority,
-        project:projects (
-          name,
-          color
-        )
-      )
-    `)
-    .eq('daily_plan_id', plan.id)
-    .order('position')
+  // 2. Get planned tasks with enrichment
+  const rawPlannedTasks = await db.planned_tasks
+    .where('daily_plan_id')
+    .equals(plan.id)
+    .sortBy('position')
 
-  if (tasksError) throw tasksError
+  const plannedTasks: PlannedTask[] = await Promise.all(
+    rawPlannedTasks.map(async (pt) => {
+      const task = await db.tasks.get(pt.task_id)
+      let project: { name: string; color: string } | undefined
 
-  return { plan, plannedTasks: plannedTasks as PlannedTask[] }
+      if (task) {
+        const proj = await db.projects.get(task.project_id)
+        project = proj ? { name: proj.name, color: proj.color } : undefined
+      }
+
+      return {
+        ...pt,
+        task: task
+          ? {
+              title: task.title,
+              status: task.status,
+              priority: task.priority,
+              project,
+            }
+          : undefined,
+      }
+    })
+  )
+
+  return { plan, plannedTasks }
 }
 
 export async function addToPlan(dailyPlanId: string, taskId: string) {
   // Get current max position
-  const { data: existing } = await supabase
-    .from('planned_tasks')
-    .select('position')
-    .eq('daily_plan_id', dailyPlanId)
-    .order('position', { ascending: false })
-    .limit(1)
+  const existing = await db.planned_tasks
+    .where('daily_plan_id')
+    .equals(dailyPlanId)
+    .sortBy('position')
 
-  const position = existing && existing.length > 0 ? existing[0].position + 1 : 0
+  const maxPos = existing.length > 0 ? existing[existing.length - 1]!.position : -1
 
-  const { error } = await supabase
-    .from('planned_tasks')
-    .insert({
-      daily_plan_id: dailyPlanId,
-      task_id: taskId,
-      position
-    })
-
-  if (error) throw error
+  await db.planned_tasks.add({
+    id: generateId(),
+    daily_plan_id: dailyPlanId,
+    task_id: taskId,
+    is_completed: false,
+    position: maxPos + 1,
+  })
 }
 
 export async function removeFromPlan(plannedTaskId: string) {
-  const { error } = await supabase
-    .from('planned_tasks')
-    .delete()
-    .eq('id', plannedTaskId)
-
-  if (error) throw error
+  await db.planned_tasks.delete(plannedTaskId)
 }
 
 export async function updatePlanNotes(id: string, notes: string) {
-  const { error } = await supabase
-    .from('daily_plans')
-    .update({ notes })
-    .eq('id', id)
-
-  if (error) throw error
+  const now = new Date().toISOString()
+  await db.daily_plans.update(id, { notes, updated_at: now })
 }
 
 export async function togglePlannedTask(id: string, is_completed: boolean) {
-    const { error } = await supabase
-        .from('planned_tasks')
-        .update({ is_completed })
-        .eq('id', id)
-    
-    if (error) throw error
+  await db.planned_tasks.update(id, { is_completed })
 }

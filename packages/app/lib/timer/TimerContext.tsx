@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { createPomodoroSession } from 'app/lib/api/timer'
-import { useAuth } from 'app/provider/auth'
 
 export type TimerMode = 'pomodoro' | 'timer'
 export type TimerStatus = 'idle' | 'running' | 'paused'
@@ -23,7 +22,6 @@ type TimerContextType = {
 const TimerContext = createContext<TimerContextType | undefined>(undefined)
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
   const [mode, setMode] = useState<TimerMode>('pomodoro')
   const [status, setStatus] = useState<TimerStatus>('idle')
   const [timeLeft, setTimeLeft] = useState(25 * 60)
@@ -35,8 +33,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
   const handleTimerComplete = useCallback(async () => {
     setStatus('idle')
-    if (mode === 'pomodoro' && user) {
-      // Save session
+    if (mode === 'pomodoro') {
+      // Save session - always save in offline mode
       await createPomodoroSession({
         duration: totalDuration,
         project_id: projectId,
@@ -45,7 +43,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       // Reset timer
       setTimeLeft(totalDuration)
     }
-  }, [mode, user, totalDuration, projectId])
+  }, [mode, totalDuration, projectId])
 
   const tick = useCallback(() => {
     if (mode === 'pomodoro') {

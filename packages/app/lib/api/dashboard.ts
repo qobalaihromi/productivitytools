@@ -1,5 +1,5 @@
-import { createClient } from '../supabase/client'
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, subDays } from 'date-fns'
+import { db } from 'app/lib/db'
+import { startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns'
 
 export type DashboardStats = {
   tasksCompletedToday: number
@@ -7,21 +7,20 @@ export type DashboardStats = {
   pomodoroMinutesToday: number
   pomodoroMinutesWeek: number
   upcomingDeadlines: {
-      id: string
-      title: string
-      due_date: string
-      project?: { name: string, color: string }
+    id: string
+    title: string
+    due_date: string
+    project?: { name: string; color: string }
   }[]
   recentActivity: {
-      id: string
-      type: 'task_completed' | 'pomodoro_session'
-      title: string
-      timestamp: string
+    id: string
+    type: 'task_completed' | 'pomodoro_session'
+    title: string
+    timestamp: string
   }[]
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const supabase = createClient()
   const now = new Date()
   const todayStart = startOfDay(now).toISOString()
   const todayEnd = endOfDay(now).toISOString()
@@ -29,67 +28,73 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const weekEnd = endOfWeek(now).toISOString()
 
   // 1. Tasks Stats
-  const { count: tasksToday } = await supabase
-    .from('tasks')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'done')
-    .gte('updated_at', todayStart)
-    .lte('updated_at', todayEnd)
+  const allDoneTasks = await db.tasks
+    .where('status')
+    .equals('done')
+    .toArray()
 
-  const { count: tasksWeek } = await supabase
-    .from('tasks')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'done')
-    .gte('updated_at', weekStart)
-    .lte('updated_at', weekEnd)
+  const tasksCompletedToday = allDoneTasks.filter(
+    (t) => t.updated_at >= todayStart && t.updated_at <= todayEnd
+  ).length
+
+  const tasksCompletedWeek = allDoneTasks.filter(
+    (t) => t.updated_at >= weekStart && t.updated_at <= weekEnd
+  ).length
 
   // 2. Pomodoro Stats
-  const { data: promoToday } = await supabase
-    .from('pomodoro_sessions')
-    .select('duration_minutes')
-    .gte('completed_at', todayStart)
-    .lte('completed_at', todayEnd)
+  const allSessions = await db.pomodoro_sessions.toArray()
 
-  const { data: promoWeek } = await supabase
-    .from('pomodoro_sessions')
-    .select('duration_minutes')
-    .gte('completed_at', weekStart)
-    .lte('completed_at', weekEnd)
+  const pomodoroMinutesToday = allSessions
+    .filter((s) => s.completed_at >= todayStart && s.completed_at <= todayEnd)
+    .reduce((acc, s) => acc + Math.round(s.duration / 60), 0)
 
-  const minutesToday = promoToday?.reduce((acc, curr) => acc + curr.duration_minutes, 0) || 0
-  const minutesWeek = promoWeek?.reduce((acc, curr) => acc + curr.duration_minutes, 0) || 0
+  const pomodoroMinutesWeek = allSessions
+    .filter((s) => s.completed_at >= weekStart && s.completed_at <= weekEnd)
+    .reduce((acc, s) => acc + Math.round(s.duration / 60), 0)
 
   // 3. Upcoming Deadlines
-  const { data: deadlines } = await supabase
-    .from('tasks')
-    .select('id, title, due_date, project:projects(name, color)')
-    .eq('status', 'todo') // or in_progress
-    .gte('due_date', now.toISOString())
-    .order('due_date', { ascending: true })
+  const tasksWithDeadline = await db.tasks
+    .where('due_date')
+    .above(now.toISOString())
     .limit(5)
+    .toArray()
 
-  // 4. Recent Activity (Simplified)
-  // Fetch recent completed tasks
-  const { data: recentTasks } = await supabase
-    .from('tasks')
-    .select('id, title, updated_at')
-    .eq('status', 'done')
-    .order('updated_at', { ascending: false })
-    .limit(5)
-  
-  const recentActivity = recentTasks?.map(t => ({
-      id: t.id,
-      type: 'task_completed' as const,
-      title: `Completed "${t.title}"`,
-      timestamp: t.updated_at
-  })) || []
+  // Filter only non-done and sort
+  const filteredDeadlines = tasksWithDeadline
+    .filter((t) => t.status !== 'done')
+    .sort((a, b) => (a.due_date! > b.due_date! ? 1 : -1))
+    .slice(0, 5)
+
+  const upcomingDeadlines = await Promise.all(
+    filteredDeadlines.map(async (t) => {
+      const project = await db.projects.get(t.project_id)
+      return {
+        id: t.id,
+        title: t.title,
+        due_date: t.due_date!,
+        project: project ? { name: project.name, color: project.color } : undefined,
+      }
+    })
+  )
+
+  // 4. Recent Activity
+  const recentDoneTasks = allDoneTasks
+    .sort((a, b) => (a.updated_at > b.updated_at ? -1 : 1))
+    .slice(0, 5)
+
+  const recentActivity = recentDoneTasks.map((t) => ({
+    id: t.id,
+    type: 'task_completed' as const,
+    title: `Completed "${t.title}"`,
+    timestamp: t.updated_at,
+  }))
 
   return {
-    tasksCompletedToday: tasksToday || 0,
-    tasksCompletedWeek: tasksWeek || 0,
-    pomodoroMinutesToday: minutesToday,
-    pomodoroMinutesWeek: minutesWeek,
-    upcomingDeadlines: deadlines as any || [],
-    recentActivity: recentActivity
+    tasksCompletedToday,
+    tasksCompletedWeek,
+    pomodoroMinutesToday,
+    pomodoroMinutesWeek,
+    upcomingDeadlines,
+    recentActivity,
   }
 }
