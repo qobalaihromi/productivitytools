@@ -1,5 +1,5 @@
 import { db } from 'app/lib/db'
-import { startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns'
+// import { startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns'
 
 export type DashboardStats = {
   tasksCompletedToday: number
@@ -22,10 +22,12 @@ export type DashboardStats = {
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const now = new Date()
-  const todayStart = startOfDay(now).toISOString()
-  const todayEnd = endOfDay(now).toISOString()
-  const weekStart = startOfWeek(now).toISOString()
-  const weekEnd = endOfWeek(now).toISOString()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString()
+  
+  // Simple week approx for debug
+  const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const weekEnd = now.toISOString()
 
   // 1. Tasks Stats
   const allDoneTasks = await db.tasks
@@ -98,3 +100,4 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     recentActivity,
   }
 }
+

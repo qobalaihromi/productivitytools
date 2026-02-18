@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { YStack, XStack, H2, H4, Text, Card, ScrollView, Spinner, Separator } from 'tamagui'
 import { CheckCircle, Clock, Calendar, Activity } from '@tamagui/lucide-icons'
 import { getDashboardStats, DashboardStats } from 'app/lib/api/dashboard'
-import { format } from 'date-fns'
+// import { format } from 'date-fns'
 
 export function DashboardScreen() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -88,7 +88,7 @@ export function DashboardScreen() {
                     <YStack key={task.id} gap="$1">
                         <XStack justifyContent="space-between">
                             <Text fontWeight="600">{task.title}</Text>
-                            <Text color="$red9" fontSize="$2">{format(new Date(task.due_date), 'MMM d')}</Text>
+                            <Text color="$red9" fontSize="$2">{new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Text>
                         </XStack>
                         {task.project && <Text fontSize="$2" color={task.project.color as any || '$color10'}>{task.project.name}</Text>}
                         <Separator />
@@ -111,7 +111,7 @@ export function DashboardScreen() {
                 stats.recentActivity.map(act => (
                     <XStack key={act.id} justifyContent="space-between" alignItems="center">
                         <Text numberOfLines={1} flex={1}>{act.title}</Text>
-                        <Text fontSize="$2" color="$color10">{format(new Date(act.timestamp), 'h:mm a')}</Text>
+                        <Text fontSize="$2" color="$color10">{new Date(act.timestamp).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</Text>
                     </XStack>
                 ))
             )}
