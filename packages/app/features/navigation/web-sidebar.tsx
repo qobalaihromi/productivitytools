@@ -7,7 +7,6 @@ import { Home, List, Calendar, Clock, Settings } from '@tamagui/lucide-icons'
 export function WebSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const media = useMedia()
 
   const links = [
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
@@ -28,7 +27,7 @@ export function WebSidebar() {
       height="100vh"
       position="sticky"
       top={0}
-      display={media.sm ? 'none' : 'flex'}
+      $sm={{ display: 'none' }}
     >
       <YStack gap="$4" flex={1}>
         <XStack alignItems="center" gap="$3" paddingHorizontal="$2">
