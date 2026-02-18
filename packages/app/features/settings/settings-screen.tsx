@@ -12,7 +12,6 @@ import {
   Theme,
   Separator,
   Text,
-  useToastController,
   Spinner,
 } from 'tamagui'
 import { Download, Upload, Trash2, HardDrive } from '@tamagui/lucide-icons'
@@ -21,7 +20,6 @@ import { exportData, importData, type BackupData } from 'app/lib/backup'
 import { db } from 'app/lib/db'
 
 export function SettingsScreen() {
-  const toast = useToastController()
   const [loading, setLoading] = useState(false)
 
   const handleExport = async () => {
@@ -40,16 +38,10 @@ export function SettingsScreen() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
 
-      toast.show('Export Successful', {
-        message: 'Your data has been downloaded.',
-        type: 'success',
-      })
+      alert('Exported successfully')
     } catch (error) {
       console.error(error)
-      toast.show('Export Failed', {
-        message: 'Could not export data.',
-        type: 'error',
-      })
+      alert('Export failed')
     } finally {
       setLoading(false)
     }
@@ -71,20 +63,14 @@ export function SettingsScreen() {
         const result = await importData(json)
 
         if (result.success) {
-          toast.show('Import Successful', {
-            message: 'Your data has been restored. Reloading...',
-            type: 'success',
-          })
+          alert('Import Successful: Your data has been restored. Reloading...')
           setTimeout(() => window.location.reload(), 1500)
         } else {
           throw new Error(result.error)
         }
       } catch (error: any) {
         console.error(error)
-        toast.show('Import Failed', {
-          message: error.message || 'Invalid backup file.',
-          type: 'error',
-        })
+        alert('Import failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
       } finally {
         setLoading(false)
       }
@@ -108,16 +94,10 @@ export function SettingsScreen() {
         db.planned_tasks.clear(),
         db.work_settings.clear()
       ])
-      toast.show('Data Cleared', {
-        message: 'All local data has been deleted.',
-        type: 'success',
-      })
+      alert('Data Cleared: All local data has been deleted.')
       setTimeout(() => window.location.reload(), 1500)
     } catch (error) {
-      toast.show('Error', {
-        message: 'Could not clear data.',
-        type: 'error',
-      })
+      alert('Error: Could not clear data.')
     } finally {
       setLoading(false)
     }
@@ -156,7 +136,7 @@ export function SettingsScreen() {
               </YStack>
               <Button
                 size="$3"
-                theme="active"
+                theme="blue"
                 icon={loading ? <Spinner /> : Download}
                 onPress={handleExport}
                 disabled={loading}

@@ -60,7 +60,7 @@ export function LoginScreen() {
           
           <Separator width="60%" />
 
-          <Card padding="$4" bordered>
+          <Card padding="$4" borderWidth={1} borderColor="$borderColor">
             <Paragraph textAlign="center">
               You are using the offline mode. No login required.
             </Paragraph>

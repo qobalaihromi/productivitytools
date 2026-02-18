@@ -131,7 +131,7 @@ export function DriveSettings() {
                         <XStack gap="$2" alignItems="center">
                             <Label htmlFor="auto-backup">Auto-backup (every 15m)</Label>
                             <Switch id="auto-backup" size="$2" checked={autoBackup} onCheckedChange={setAutoBackup}>
-                                <Switch.Thumb animation="quick" />
+                                <Switch.Thumb />
                             </Switch>
                         </XStack>
                         
