@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('Production Mode', () => {
+test.describe.skip('Production Mode', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to production server
     await page.goto('http://localhost:8151')

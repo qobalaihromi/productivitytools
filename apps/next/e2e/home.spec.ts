@@ -23,7 +23,7 @@ test.describe('Home Page', () => {
     await page.waitForLoadState('networkidle')
 
     // Check that the page has loaded
-    await expect(page).toHaveTitle(/Tamagui/)
+    await expect(page).toHaveTitle(/Tasktik/)
 
     // Verify no errors occurred
     expect(errors).toEqual([])
