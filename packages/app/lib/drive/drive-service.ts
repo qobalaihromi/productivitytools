@@ -5,6 +5,8 @@ const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/res
 
 let gapiInited = false
 
+declare const gapi: any;
+
 export class GoogleDriveService {
     private static instance: GoogleDriveService
     
