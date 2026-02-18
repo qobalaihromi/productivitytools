@@ -8,7 +8,8 @@
     "start": "next start",
     "serve": "NODE_ENV=production next start --port 8151",
     "lint": "biome check .",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@tamagui/config": "^2.0.0-rc.0",
